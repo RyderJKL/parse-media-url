@@ -1,0 +1,31 @@
+{
+  "name": "parse-media-url",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node ./src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/koa": "^2.13.4",
+    "@types/koa__router": "^8.0.11",
+    "@types/koa-bodyparser": "^4.3.6",
+    "@types/koa-router": "^7.4.4",
+    "@types/url-parse": "^1.4.8",
+    "koa": "^2.13.4",
+    "rxjs": "^7.5.5",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.2"
+  },
+  "dependencies": {
+    "@koa/router": "^10.1.1",
+    "koa-bodyparser": "^4.3.0",
+    "koa-router": "^10.1.1",
+    "puppeteer": "^13.5.1",
+    "qs": "^6.10.3",
+    "url-parse": "^1.5.10"
+  }
+}
