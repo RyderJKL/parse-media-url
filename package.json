@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node ./src/index.ts",
+    "start:db": "ts-node ./src/db/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,6 +15,7 @@
     "@types/koa__router": "^8.0.11",
     "@types/koa-bodyparser": "^4.3.6",
     "@types/koa-router": "^7.4.4",
+    "@types/mysql": "^2.15.21",
     "@types/url-parse": "^1.4.8",
     "koa": "^2.13.4",
     "rxjs": "^7.5.5",
@@ -24,6 +26,7 @@
     "@koa/router": "^10.1.1",
     "koa-bodyparser": "^4.3.0",
     "koa-router": "^10.1.1",
+    "mysql": "^2.18.1",
     "puppeteer": "^13.5.1",
     "qs": "^6.10.3",
     "url-parse": "^1.5.10"

@@ -40,7 +40,7 @@ async function parseUrl(browser: Browser, url: string) {
 
     return mediaData;
   } catch (error) {
-    throw new Error(error);
+    throw Error(error);
   }
 }
 
@@ -75,7 +75,7 @@ export async function launchMeidaCrawler(targeURL: string): Promise<MediaData> {
     console.log(result, 'result');
     return result;
   } catch (error) { 
-    throw new Error(error);
+    throw Error(error);
   }
 }
 
