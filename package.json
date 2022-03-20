@@ -6,7 +6,8 @@
   "scripts": {
     "start": "ts-node ./src/index.ts",
     "start:db": "ts-node ./src/db/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .ts"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +18,9 @@
     "@types/koa-router": "^7.4.4",
     "@types/mysql": "^2.15.21",
     "@types/url-parse": "^1.4.8",
+    "@typescript-eslint/eslint-plugin": "^5.15.0",
+    "@typescript-eslint/parser": "^5.15.0",
+    "eslint": "^8.11.0",
     "koa": "^2.13.4",
     "rxjs": "^7.5.5",
     "ts-node": "^10.7.0",

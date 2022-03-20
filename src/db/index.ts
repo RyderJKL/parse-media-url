@@ -18,4 +18,5 @@ connection.query('SELECT * FROM `cnews`.`reddit_post` LIMIT 0,1000', (error, res
     console.log('result is', results[0]);
 })
 
+export default connection
 // connection.end()

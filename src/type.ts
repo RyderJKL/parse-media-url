@@ -9,5 +9,3 @@ export enum MediaType {
     Medium = 'medium.com',
     Youtube = 'youtube'
 }
-
-export const mediaTypeArr = Object.keys(MediaType).map(key => MediaType[key]);

@@ -15,9 +15,18 @@ export const server = ({preTap, postTap, catchTap}: Props) => {
 
     const listen = (...params: any) => {
         new Koa()
+        .use(bodyParser(
+            {
+                extendTypes: {
+                    json: ['application/json'] // 
+                  },
+                onerror: function (err, ctx) {
+                    ctx.throw('body parse error', 422);
+                  }
+            }
+        ))
         .use(router.routes())
         .use(router.allowedMethods())
-        .use(bodyParser())
         .use(async (ctx, next) => {
             const root$ = new Subject<Context>();
 

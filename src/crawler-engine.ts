@@ -1,51 +1,28 @@
 import puppeteer, { Browser } from "puppeteer";
 import { MediaData } from './type';
 
-
 /**
- * @param { } page
- * @return {*} { nickname, feedItems }
+ * 
+ * @param browser 
+ * @param url 
+ * @param evaluateCallback 
+ * @returns MediaData
  */
-async function parseUrl(browser: Browser, url: string) {
+async function parseUrl(browser: Browser, url: string, evaluateCallback: () => MediaData): Promise<MediaData> {
   const page = await getSinglePage(browser);
   await page.goto(url);
-
   // 确保页面加载完成
   await page.waitFor(1000 * 5);
 
-  const articleTitleSelec = '.pw-post-title';
-  const voteCountSelec = '.pw-multi-vote-count';
-  const pwResponsesCountSelec = '.pw-responses-count';
-
-  const evaluateFunc = () => {
-
-  }; 
-
   try {
-     const mediaData: MediaData =  await page.evaluate(
-      (articleTitleSelec, voteCountSelec, pwResponsesCountSelec) => {
-        const getEleText = (selector: string) => (document.querySelector(selector) as HTMLElement)?.innerText || '';
-        const title = getEleText(articleTitleSelec); 
-        const voteCount = getEleText(voteCountSelec);
-        const pwCount = getEleText(pwResponsesCountSelec);
-        console.log(title, voteCount, pwCount);
-        return {
-            title, voteCount, pwCount
-        }
-      },
-        articleTitleSelec,
-        voteCountSelec,
-        pwResponsesCountSelec,
-    );
-
-    return mediaData;
+     return await page.evaluate(evaluateCallback);
   } catch (error) {
-    throw Error(error);
+    throw Error(JSON.stringify(error));
   }
 }
 
 async function getBrowser({ headless = true } = {}) {
-  let browserInstance = await puppeteer.launch({
+  const browserInstance = await puppeteer.launch({
     headless,
     args: [
       "--no-sandbox",
@@ -68,14 +45,17 @@ async function getSinglePage(browser: Browser) {
   return pageInstance;
 }
 
-export async function launchMeidaCrawler(targeURL: string): Promise<MediaData> {
+/**
+ * 
+ * @param targeURL 
+ * @param evaluateCallback 
+ * @returns 
+ */
+export async function launchMeidaCrawler<U extends string, T extends (...args: any[]) => MediaData>(targeURL: U, evaluateCallback: T): Promise<MediaData> {
   try {
     const browser = await getBrowser({ headless: false });
-    const result = await parseUrl(browser, targeURL, );
-    console.log(result, 'result');
-    return result;
+    return await parseUrl(browser, targeURL, evaluateCallback);
   } catch (error) { 
-    throw Error(error);
+    throw Error(JSON.stringify(error));
   }
 }
-
