@@ -1,11 +1,11 @@
 export interface MediaData {
-    title: string;
-    voteCount: string;
-    pwCount: string;
+    title?: string;
+    img?: string;
+    preview?: string;
 }
 
 export enum MediaType {
-    Twritter =  'twritter',
+    Twitter =  'twitter.com',
     Medium = 'medium.com',
-    Youtube = 'youtube'
+    Youtube = 'youtube.com'
 }

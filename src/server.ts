@@ -1,6 +1,6 @@
 import Koa, { Context } from 'koa';
 import { Subject, of, from } from 'rxjs';
-import { tap, catchError, mergeMap, mapTo, single } from 'rxjs/operators';
+import { tap, catchError, single } from 'rxjs/operators';
 import bodyParser from 'koa-bodyparser';
 import router from './router';
 
@@ -18,7 +18,7 @@ export const server = ({preTap, postTap, catchTap}: Props) => {
         .use(bodyParser(
             {
                 extendTypes: {
-                    json: ['application/json'] // 
+                    json: ['application/json'] //
                   },
                 onerror: function (err, ctx) {
                     ctx.throw('body parse error', 422);
@@ -41,7 +41,7 @@ export const server = ({preTap, postTap, catchTap}: Props) => {
               tap(() => done$.complete()),
             )
             .subscribe();
-        
+
             root$.next(ctx);
             root$.complete();
 
@@ -55,4 +55,4 @@ export const server = ({preTap, postTap, catchTap}: Props) => {
     return {
         listen
     }
-} 
+}
