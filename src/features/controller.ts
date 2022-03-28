@@ -18,7 +18,6 @@ export const controller = async (ctx: RouterContext) => {
         }
 
         console.log(mediaData, 'get mediaData at controller');
-
         db.query('update `cnews`.`reddit_post` set data = ? where id = ?', [JSON.stringify(mediaData), body.post_id], (error, result) => {
             if (error) {
                 console.log(error);
@@ -28,7 +27,6 @@ export const controller = async (ctx: RouterContext) => {
             ctx.body = mediaData
         });
     } catch (e) {
-        console.log(e, 'eee');
         ctx.body = JSON.stringify(e);
     }
 }

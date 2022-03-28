@@ -1,4 +1,5 @@
 export interface MediaData {
+    // common property
     title?: string;
     img?: string;
     preview?: string;
