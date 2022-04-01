@@ -1,4 +1,5 @@
 import puppeteer, { Browser, Page } from "puppeteer";
+import { isProdEnv } from '../utils';
 
 /**
  *
@@ -19,7 +20,7 @@ async function getPage(browser: Browser, url: string) {
     await page.goto(url);
 
     // 确保页面加载完成
-    // await page.waitFor(1000 * 3);
+    await page.waitFor(1000 * 3);
 
     return page;
   } catch {
@@ -52,11 +53,12 @@ async function getBrowser({ headless = true } = {}) {
  * @param evaluateCallback
  * @returns
  */
-export async function getPageFromUrl(targeURL: string) {
+export async function getPageFromUrl(targetURL: string) {
   try {
-    const browser = await getBrowser({ headless: false });
-    return await getPage(browser, targeURL);
+    const headless = isProdEnv;
+    const browser = await getBrowser({ headless });
+    return await getPage(browser, targetURL);
   } catch (error) {
-    throw Error(JSON.stringify(error));
+    throw JSON.stringify(error);
   }
 }

@@ -1,7 +1,8 @@
 import mysql from 'mysql';
-import config from './config';
+import config from '../config';
 
-const connection = mysql.createConnection(config);
+//@ts-ignore
+const connection = mysql.createConnection(config.db);
 
 connection.connect((error) => {
     if (error) {

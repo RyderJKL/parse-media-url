@@ -1,1 +1,1 @@
-export * from './controller';
+export * from './parse/controller';

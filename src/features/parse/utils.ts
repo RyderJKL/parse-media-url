@@ -1,11 +1,23 @@
 import urlParse from 'url-parse';
-import {MediaType, MediaData} from '../type'
 import {Page} from 'puppeteer';
 import * as R from 'ramda';
 
-const getEle = (selector: string) => (document.querySelectorAll(selector));
-const getEleText = (selector: string) => (getEle(selector)[0] as unknown as HTMLElement).innerText || '';
-const getEleImgSrc = (selector: string) => (getEle(selector)[0] as unknown as HTMLImageElement).src || ''
+import {getPageFromUrl} from '../../crawler/getPageFromUrl';
+import {MediaData, MediaType} from '../../type'
+
+export const extraMedia = async (url: string): Promise<MediaData | undefined> => {
+    try {
+        const validateUrl = parseUrl(url);
+
+        if (!validateUrl) return;
+
+        const page = await getPageFromUrl(validateUrl.url);
+        return getMediaDataParse[validateUrl.type](page)
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+}
 
 export const parseUrl = (url: string): { type: MediaType.Medium | MediaType.Youtube | MediaType.Twitter; url: string } | undefined => {
     if (!url) return;
@@ -33,56 +45,49 @@ export const getMediumContext = async (page: Page) => {
     const titleSel = '.pw-post-title';
     const paragraphImageSel = '.paragraph-image img'
     const previewSel = '.pw-post-body-paragraph';
-    // const voteCountSelec = '.pw-multi-vote-count';
-    // const pwResponsesCountSelec = '.pw-responses-count';
-
-    const callback = () => (((titleSel, paragraphImageSel) => {
-        const title = getEleText(titleSel);
-        const img = getEleImgSrc(paragraphImageSel);
-        const preview = Array.from(getEle(previewSel)).slice(0, 2).map(node => (node as HTMLElement).innerText).join('\n');
-        return {
-            title, img, preview
-        }
-    })(titleSel, paragraphImageSel))
 
     try {
-        return await page.evaluate(callback);
+        return await page.evaluate((titleSel, paragraphImageSel, previewSel) => {
+            const title = document.querySelector(titleSel)?.innerText || '';
+            const img = document.querySelector(paragraphImageSel)?.src || '';
+            const preview = Array(document.querySelector(previewSel)).slice(0, 2).map(node => (node as HTMLElement).innerText).join('\n');
+            return {
+                title, img, preview
+            }
+        }, titleSel, paragraphImageSel, previewSel)
     } catch (e) {
-        console.error('getMediumContext error');
+        console.error('Error at getMediumContext:', e);
+        throw `Error At getMediumContext :${e}`
     }
 }
 
 export const getYoutubeContext = async (page: Page) => {
     const titleSel = '#container > h1';
-    // const paragraphImageSel = '#description > yt-formatted-string > span:nth-child(1)'
     const previewSel = '#description > yt-formatted-string > span:nth-child(1)';
 
-    // try {
-    const callback = () => (((titleSel, previewSel) => {
-        const title = (document.querySelector(titleSel) as unknown as HTMLElement).innerText || '';
-        // const img = getEleImgSrc(paragraphImageSel);
-        const preview = (document.querySelector(previewSel) as unknown as HTMLElement).innerText || '';
-
-        return {
-            title, preview
-        }
-    })(titleSel, previewSel))
-
     try {
-        return await page.evaluate(callback);
+        return await page.evaluate((titleSel, previewSel) => {
+            const title = (document.querySelector(titleSel) as unknown as HTMLElement)?.innerText || '';
+            const preview = (document.querySelector(previewSel) as unknown as HTMLElement)?.innerText || '';
+
+            return {
+                title, preview
+            }
+
+        }, titleSel, previewSel);
     } catch (e) {
         console.error(e);
-        throw 'getYoutubeContext error'
+        throw `Error At getYoutubeContext :${e}`
     }
 }
 
 const twitterResultPath = [
     'threaded_conversation_with_injections',
     'instructions',
-     0,
-     'entries',
-     0,
-     'content',
+    0,
+    'entries',
+    0,
+    'content',
     'itemContent',
     'tweet_results',
     'result',
@@ -115,17 +120,17 @@ export interface TwitterMedia extends MediaData {
 }
 
 const convertTwitterLegacyPropertiesToMediaData = (obj: Partial<TwitterLegacyProperties>): TwitterMedia => {
-   return {
-       title: obj.full_text,
-       img: '',
-       preview: '',
-       twitter_avatar: '',
-       twitter_name: '',
-       likes: Number(obj.favorite_count),
-       retweets: Number(obj.retweet_count),
-       quote_tweets: Number(obj.quote_count),
-       twitter_handle: ''
-   }
+    return {
+        title: obj.full_text,
+        img: '',
+        preview: '',
+        twitter_avatar: '',
+        twitter_name: '',
+        likes: Number(obj.favorite_count),
+        retweets: Number(obj.retweet_count),
+        quote_tweets: Number(obj.quote_count),
+        twitter_handle: ''
+    }
 }
 export const getTwitterContext = async (page: Page) => {
     try {
@@ -136,7 +141,7 @@ export const getTwitterContext = async (page: Page) => {
             req.continue()
         )
 
-        const getResponseBody = (): Promise<{data: any}> => new Promise((resolve) => {
+        const getResponseBody = (): Promise<{ data: any }> => new Promise((resolve) => {
             page.on(('response'), async (res) => {
                 try {
                     if (res.url().includes('/i/api/graphql/') && res.url().includes('TweetDetail')) {
@@ -155,7 +160,8 @@ export const getTwitterContext = async (page: Page) => {
         const getTwitterPropPath = (prop: string) => R.path([...twitterResultPath, prop]);
         const obj: Partial<TwitterLegacyProperties> = {};
         twitterLegacyProperties.forEach(prop => {
-            obj[prop as  keyof TwitterLegacyProperties] = getTwitterPropPath(prop)(result.data??{}) as unknown as string});
+            obj[prop as keyof TwitterLegacyProperties] = getTwitterPropPath(prop)(result.data ?? {}) as unknown as string
+        });
 
         const formattedObj = convertTwitterLegacyPropertiesToMediaData(obj);
         console.log(formattedObj)
@@ -164,4 +170,10 @@ export const getTwitterContext = async (page: Page) => {
     } catch (e) {
         console.error('getTwitterContext error', e);
     }
+}
+
+export const getMediaDataParse: Record<MediaType, (page: Page) => Promise<MediaData | undefined>> = {
+    [MediaType.Medium]: getMediumContext,
+    [MediaType.Twitter]: getTwitterContext,
+    [MediaType.Youtube]: getYoutubeContext,
 }

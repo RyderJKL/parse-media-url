@@ -2,16 +2,23 @@
   "name": "parse-media-url",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "ts-node ./src/index.ts",
-    "start:db": "ts-node ./src/db/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . --ext .ts"
+    "dev": "cross-env NODE_ENV=development nodemon",
+    "build": "tsc",
+    "start:prod": "npm run build && pm2 start pm2.json",
+    "lint": "eslint . --ext .ts",
+    "test": "jest",
+    "testWithCoverage": "jest --coverage"
+  },
+  "jest": {
+    "preset": "ts-jest"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/jest": "^27.4.1",
     "@types/koa": "^2.13.4",
     "@types/koa__router": "^8.0.11",
     "@types/koa-bodyparser": "^4.3.6",
@@ -21,20 +28,28 @@
     "@types/url-parse": "^1.4.8",
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.0.0",
     "eslint": "^8.11.0",
+    "jest": "^27.5.1",
     "koa": "^2.13.4",
     "rxjs": "^7.5.5",
+    "supertest": "^6.2.2",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.2"
   },
   "dependencies": {
     "@koa/router": "^10.1.1",
+    "@types/log4js": "^2.3.5",
     "koa-bodyparser": "^4.3.0",
     "koa-router": "^10.1.1",
+    "log4js": "^6.4.4",
     "mysql": "^2.18.1",
+    "mysql2": "^2.3.3",
     "puppeteer": "^13.5.1",
     "qs": "^6.10.3",
     "ramda": "^0.28.0",
-    "url-parse": "^1.5.10"
+    "url-parse": "^1.5.10",
+    "winston": "^3.6.0"
   }
 }
