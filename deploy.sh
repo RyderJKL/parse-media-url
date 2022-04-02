@@ -5,7 +5,7 @@ build () {
 }
 
 echo "编译代码"
-#build
+build
 echo "打包文件"
 tar -czf dist.tar dist
 echo "上传到文件服务器"

@@ -13,4 +13,6 @@ server({
     preTap:({request}) => logger.verbose(`request: ${JSON.stringify(request)}`),
     postTap:({response}) => logger.verbose(`response: ${JSON.stringify(response)}`),
     catchTap: error => logger.error(`error: ${JSON.stringify(error)}`),
-}).listen(config.server.port)
+}).listen(config.server.port, () => {
+    console.log('启动端口', config.server.port);
+})

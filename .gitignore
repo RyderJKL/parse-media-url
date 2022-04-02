@@ -1,5 +1,4 @@
 node_modules/
-/src/config.ts
 .env.development
 .env.production
 dist/
