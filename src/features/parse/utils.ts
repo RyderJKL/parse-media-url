@@ -43,7 +43,7 @@ export const getMediumContext = async (page: Page, url: string) => {
     const paragraphImageSel = '.paragraph-image img'
     const previewSel = '.pw-post-body-paragraph';
     console.log('getMediumContext, doing....');
-    
+
     try {
         await page.goto(url);
         await page.waitFor(3000);

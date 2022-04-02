@@ -43,6 +43,7 @@ class ParseController {
         try {
             const body = ctx.request.body as RequestBody;
             const mediaData = await extraMedia(body.url);
+            logger.info('extraMedia', extraMedia);
 
             if (typeof body.post_id === undefined) {
                 logger.error(`提交参数错误， id 不合法: ${body.post_id}`)

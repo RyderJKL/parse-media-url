@@ -1,5 +1,6 @@
 import puppeteer, {Browser, Page} from "puppeteer";
 import {isProdEnv} from '../utils';
+import logger from "../logger";
 
 /**
  *
@@ -17,48 +18,29 @@ async function getPage(browser: Browser) {
     });
 
     return page;
-    // try {
-    //     page.on("response", async response => {
-    //         const url = response.url();
-    //         if (url.match(".*/graphql/.*")) {
-    //             console.log(url);
-    //             const body = await response.text();
-    //             if (body) {
-    //                 try {
-    //                     const json = JSON.parse(body);
-    //                     // if (json.data && json.data.user && json.data.user.legacy) {
-    //                     //     console.log(JSON.stringify(json.data.user.legacy, null, 4));
-    //                     // }
-    //                 } catch (e) {
-    //                 }
-    //             }
-    //         }
-    //     });
-    //     // await page.goto(url);
-    //     // 确保页面加载完成
-    //     // await page.waitFor(1000 * 3);
-    //     return page;
-    // } catch {
-    // throw '打开页面失败'
-    // }
 }
 
 let browserInstance: Browser;
 
 async function getBrowser({headless = true} = {}) {
-    if (browserInstance) return browserInstance;
+    try {
+        if (browserInstance) return browserInstance;
 
-    browserInstance = await puppeteer.launch({
-        headless,
-        devtools: true,
-        args: [
-            "--no-sandbox",
-            "--disable-setuid-sandbox",
-            //   "--proxy-server=socks5://127.0.0.1:9050",
-        ],
-    });
+        browserInstance = await puppeteer.launch({
+            headless,
+            devtools: true,
+            args: [
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                //   "--proxy-server=socks5://127.0.0.1:9050",
+            ],
+        });
 
-    return browserInstance;
+        return browserInstance;
+    } catch (e) {
+        logger.error(e);
+        throw e;
+    }
 }
 
 /**
@@ -73,6 +55,7 @@ export async function getPageFromUrl() {
         const browser = await getBrowser({headless});
         return await getPage(browser);
     } catch (error) {
-        throw JSON.stringify(error);
+        logger.error(error);
+        throw error;
     }
 }
