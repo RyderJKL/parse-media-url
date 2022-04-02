@@ -10,15 +10,15 @@ export type Props = {
     catchTap:(error: any) => void;
 }
 
-export const server = ({preTap, postTap, catchTap}: Props) => {
+export const server = ({preTap, postTap, catchTap}: Partial<Props>) => {
     const handleError = (error: any) => of(catchError(error));
 
     const listen = (...params: any) => {
-        new Koa()
+        return new Koa()
         .use(bodyParser(
             {
                 extendTypes: {
-                    json: ['application/json'] //
+                    json: ['application/json']
                   },
                 onerror: function (err, ctx) {
                     ctx.throw('body parse error', 422);

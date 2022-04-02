@@ -3,6 +3,7 @@ import {extraMedia} from './utils';
 import {MediaData} from '../../type'
 import db from '../../db'
 import logger from '../../logger';
+import {merge} from 'lodash';
 
 export interface RequestBody {
     post_id: number;
@@ -10,15 +11,29 @@ export interface RequestBody {
 }
 
 const updateDB = (mediaData: MediaData, id: number) => new Promise((resolve, reject) => {
-    db.query('update `cnews`.`reddit_post` set data = ? where id = ?', [JSON.stringify(mediaData), id], (error, result) => {
+    const updateCallback = (data: MediaData) => {
+        db.query('update `cnews`.`reddit_post` set data = ? where id = ?', [JSON.stringify(data), id], (error, result) => {
+            if (error) {
+                logger.error(error);
+                return reject(error)
+            }
+            logger.info('数据库更新成功');
+            resolve(mediaData);
+        });
+    }
+
+    db.query('select `data` from `cnews`.`reddit_post` where id = ?', [id], (error, result) => {
         if (error) {
             logger.error(error);
             return reject(error)
         }
-        logger.info('数据库更新成功');
-        resolve(mediaData);
-    });
 
+        let data = result[0].data || '{}';
+
+        data = JSON.parse(data);
+        const newData = merge(data, mediaData);
+        updateCallback(newData);
+    });
 });
 
 class ParseController {

@@ -1,16 +1,26 @@
-import mysql from 'mysql';
+import mysql, {Connection} from 'mysql';
 import config from '../config';
+import logger from "../logger";
 
-//@ts-ignore
-const connection = mysql.createConnection(config.db);
+let connection: Connection;
 
-connection.connect((error) => {
-    if (error) {
-        console.error(`connect faild:${error.stack}`);
-       return;
-    }
+export const getBDInstance = () => {
+    if (connection) return connection;
 
-    console.log(`connected id: ${connection.threadId}`);
-})
+    //@ts-ignore
+    connection = mysql.createConnection(config.db);
 
-export default connection
+    connection.connect((error) => {
+        if (error) {
+            logger.error(`数据库连接失败: ${error}`);
+            throw '数据库连接失败'
+        }
+
+        console.log(`数据库链接成功 connect id: ${connection.threadId}`);
+    })
+
+    return connection;
+}
+
+export const db = getBDInstance();
+export default db

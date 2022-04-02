@@ -13,7 +13,7 @@ const logger = createLogger({
     timestamp(),
     myFormat
   ),
-  levels: config.syslog.levels,
+  levels: {...config.syslog.levels, access: 102},
   transports: [
     new transports.Console(),
     new transports.File({filename: path.resolve(process.cwd(), './logs/error.log'), level: 'error'}),
