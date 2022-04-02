@@ -23,22 +23,18 @@ export const extraMedia = async (url: string): Promise<MediaData | undefined> =>
 export const parseUrl = (url: string): { type: MediaType.Medium | MediaType.Youtube | MediaType.Twitter; url: string } | undefined => {
     if (!url) return;
 
-    try {
-        const {host, href} = urlParse(url);
-        const mediaTypeArr = Object.keys(MediaType).map((key) => MediaType[key as keyof typeof MediaType]);
+    const {host, href} = urlParse(url);
+    const mediaTypeArr = Object.keys(MediaType).map((key) => MediaType[key as keyof typeof MediaType]);
 
-        const mediaType = mediaTypeArr.find((item) => new RegExp(`${item}$`).test(host));
+    const mediaType = mediaTypeArr.find((item) => new RegExp(`${item}$`).test(host));
 
-        if (!mediaType) {
-            throw '目前只支持 twitter/medium/youtube 三个平台';
-        }
+    if (!mediaType) {
+        throw '目前只支持 twitter/medium/youtube 三个平台';
+    }
 
-        return {
-            url: href,
-            type: mediaType
-        }
-    } catch (e) {
-        throw e;
+    return {
+        url: href,
+        type: mediaType
     }
 }
 
@@ -46,7 +42,8 @@ export const getMediumContext = async (page: Page, url: string) => {
     const titleSel = '.pw-post-title';
     const paragraphImageSel = '.paragraph-image img'
     const previewSel = '.pw-post-body-paragraph';
-
+    console.log('getMediumContext, doing....');
+    
     try {
         await page.goto(url);
         await page.waitFor(3000);

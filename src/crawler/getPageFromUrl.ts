@@ -69,7 +69,7 @@ async function getBrowser({headless = true} = {}) {
  */
 export async function getPageFromUrl() {
     try {
-        const headless = isProdEnv;
+        const headless = true;
         const browser = await getBrowser({headless});
         return await getPage(browser);
     } catch (error) {

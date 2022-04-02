@@ -38,11 +38,14 @@ const updateDB = (mediaData: MediaData, id: number) => new Promise((resolve, rej
 
 class ParseController {
     async parse(ctx: RouterContext, next: () => void) {
+        logger.info('当前访问路径：', ctx.path);
+
         try {
             const body = ctx.request.body as RequestBody;
             const mediaData = await extraMedia(body.url);
 
             if (typeof body.post_id === undefined) {
+                logger.error(`提交参数错误， id 不合法: ${body.post_id}`)
                 throw '提交参数错误：id 不合法'
             }
 
@@ -54,10 +57,9 @@ class ParseController {
             ctx.body = JSON.stringify(mediaData);
             ctx.status = 200;
         } catch (e) {
-            console.error(e);
+            console.error('错误了：', e);
             ctx.body = JSON.stringify(e);
             ctx.status = 500
-            next();
         }
     }
 }
