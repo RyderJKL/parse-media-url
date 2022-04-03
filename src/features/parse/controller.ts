@@ -45,7 +45,7 @@ const updateDB = (mediaData: MediaData, id: number) => new Promise((resolve, rej
 
 class ParseController {
     async parse(ctx: RouterContext) {
-        logger.verbose(`当前访问路径: ${ctx.path}`);
+        logger.info(`当前访问路径: ${ctx.path}`);
 
         try {
             const body = ctx.request.body as RequestBody;

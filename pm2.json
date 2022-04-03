@@ -13,7 +13,6 @@
       "source_map_support": false,
       "error_file": "./Logs/pm2/err.log",
       "out_file": "./Logs/pm2/out.log",
-      "node_args": "['--debug=7000']",
       "env": {
         "NODE_ENV": "production"
       }
