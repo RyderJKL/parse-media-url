@@ -18,39 +18,48 @@ const updateDB = (mediaData: MediaData, id: number) => new Promise((resolve, rej
                 return reject(error)
             }
             logger.info('数据库更新成功');
-            resolve(mediaData);
+            return resolve(mediaData);
         });
     }
 
-    db.query('select `data` from `cnews`.`reddit_post` where id = ?', [id], (error, result) => {
+    db.query('select `data`, `id` from `cnews`.`reddit_post` where id = ?', [id], (error, result) => {
         if (error) {
             logger.error(error);
             return reject(error)
         }
 
-        let data = result[0].data || '{}';
+        const targetId = result?.[0]?.id;
 
+        if (!targetId) {
+            logger.error(`未查询到当前数据，对应 id：${id}` );
+            return reject(`未查询到当前数据，对应 id：${id}`);
+        }
+
+        let data = result?.[0]?.data || '{}';
         data = JSON.parse(data);
+
         const newData = merge(data, mediaData);
         updateCallback(newData);
     });
 });
 
 class ParseController {
-    async parse(ctx: RouterContext, next: () => void) {
-        logger.info('当前访问路径：', ctx.path);
+    async parse(ctx: RouterContext) {
+        logger.verbose(`当前访问路径: ${ctx.path}`);
 
         try {
             const body = ctx.request.body as RequestBody;
             const mediaData = await extraMedia(body.url);
-            logger.info('extraMedia', extraMedia);
 
             if (typeof body.post_id === undefined) {
                 logger.error(`提交参数错误， id 不合法: ${body.post_id}`)
                 throw '提交参数错误：id 不合法'
             }
 
-            if (!mediaData) return;
+            if (!mediaData) {
+                logger.error(`未解析到相关内容: ${body.url}`);
+                throw `未解析到相关内容: ${body.url}`
+            }
 
             await updateDB(mediaData, body.post_id);
 
@@ -58,7 +67,7 @@ class ParseController {
             ctx.body = JSON.stringify(mediaData);
             ctx.status = 200;
         } catch (e) {
-            console.error('错误了：', e);
+            console.error(`捕获到错误：${e}`);
             ctx.body = JSON.stringify(e);
             ctx.status = 500
         }

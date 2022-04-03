@@ -9,13 +9,17 @@ import logger from "../../logger";
 export const extraMedia = async (url: string): Promise<MediaData | undefined> => {
     try {
         const validateUrl = parseUrl(url);
+        logger.info(`请求参数解析: ${validateUrl}`)
 
-        if (!validateUrl) return;
+        if (!validateUrl) {
+            logger.error(`请求参数解析错误: ${validateUrl}`)
+            return;
+        }
 
         const page = await getPageFromUrl();
         return getMediaDataParse[validateUrl.type](page, validateUrl.url)
     } catch (e) {
-        console.log(e);
+        logger.error(e);
         throw e;
     }
 }
@@ -29,6 +33,7 @@ export const parseUrl = (url: string): { type: MediaType.Medium | MediaType.Yout
     const mediaType = mediaTypeArr.find((item) => new RegExp(`${item}$`).test(host));
 
     if (!mediaType) {
+        logger.error(`目前只支持 twitter/medium/youtube 三个平台`)
         throw '目前只支持 twitter/medium/youtube 三个平台';
     }
 
@@ -160,7 +165,7 @@ const convertToMediaData = (obj: Partial<TwitterLegacyProperties & TwitterResult
         twitter_handle: obj.screen_name
     }
 }
-export const getTwitterContext = (page: Page, url: string): Promise<MediaData> => new Promise((resolve, reject) => {
+export const getTwitterContext = async (page: Page, url: string): Promise<MediaData> => await new Promise((resolve, reject) => {
     try {
         page.on(('response'), async (res) => {
             if (res.url().includes('/i/api/graphql/') && res.url().includes('TweetDetail')) {

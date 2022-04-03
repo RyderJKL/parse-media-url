@@ -51,8 +51,7 @@ async function getBrowser({headless = true} = {}) {
  */
 export async function getPageFromUrl() {
     try {
-        const headless = true;
-        const browser = await getBrowser({headless});
+        const browser = await getBrowser({headless: true});
         return await getPage(browser);
     } catch (error) {
         logger.error(error);
