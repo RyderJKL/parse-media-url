@@ -1,5 +1,4 @@
 import puppeteer, {Browser, Page} from "puppeteer";
-import {isProdEnv} from '../utils';
 import logger from "../logger";
 
 /**

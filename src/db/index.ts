@@ -12,11 +12,11 @@ export const getBDInstance = () => {
 
     connection.connect((error) => {
         if (error) {
-            logger.error(`数据库连接失败: ${error}`);
-            throw '数据库连接失败'
+            logger.error(`Database connetct error: ${error}`);
+            throw 'Database connetct error'
         }
 
-        console.log(`数据库链接成功 connect id: ${connection.threadId}`);
+        console.log(`Database connected successed id: ${connection.threadId}`);
     })
 
     return connection;

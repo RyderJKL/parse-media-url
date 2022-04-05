@@ -17,7 +17,7 @@ const updateDB = (mediaData: MediaData, id: number) => new Promise((resolve, rej
                 logger.error(error);
                 return reject(error)
             }
-            logger.info('数据库更新成功');
+            logger.info('sql updated successed');
             return resolve(mediaData);
         });
     }
@@ -31,8 +31,8 @@ const updateDB = (mediaData: MediaData, id: number) => new Promise((resolve, rej
         const targetId = result?.[0]?.id;
 
         if (!targetId) {
-            logger.error(`未查询到当前数据，对应 id：${id}` );
-            return reject(`未查询到当前数据，对应 id：${id}`);
+            logger.error(`the current data not queried in database，target id：${id}` );
+            return reject(`the current data not queried in database，target id：${id}`);
         }
 
         let data = result?.[0]?.data || '{}';
@@ -45,20 +45,20 @@ const updateDB = (mediaData: MediaData, id: number) => new Promise((resolve, rej
 
 class ParseController {
     async parse(ctx: RouterContext) {
-        logger.info(`当前访问路径: ${ctx.path}`);
+        logger.info(`access path: ${ctx.path}`);
 
         try {
             const body = ctx.request.body as RequestBody;
             const mediaData = await extraMedia(body.url);
 
             if (typeof body.post_id === undefined) {
-                logger.error(`提交参数错误， id 不合法: ${body.post_id}`)
-                throw '提交参数错误：id 不合法'
+                logger.error(`The data corresponding to the current id is not queried: ${body.post_id}`)
+                throw `{The data corresponding to the current id is not queried: ${body.post_id}`
             }
 
             if (!mediaData) {
-                logger.error(`未解析到相关内容: ${body.url}`);
-                throw `未解析到相关内容: ${body.url}`
+                logger.error(`Not related content parsed: ${body.url}`);
+                throw `Not related content parsed: ${body.url}`
             }
 
             await updateDB(mediaData, body.post_id);
@@ -67,7 +67,7 @@ class ParseController {
             ctx.body = JSON.stringify(mediaData);
             ctx.status = 200;
         } catch (e) {
-            console.error(`捕获到错误：${e}`);
+            console.error(`Caught in error：${e}`);
             ctx.body = JSON.stringify(e);
             ctx.status = 500
         }

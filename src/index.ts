@@ -14,5 +14,5 @@ server({
     postTap:({response}) => logger.info(`response: ${JSON.stringify(response)}`),
     catchTap: error => logger.error(`error: ${JSON.stringify(error)}`),
 }).listen(config.server.port, () => {
-    console.log('启动端口', config.server.port);
+    console.log('Listening port', config.server.port);
 })
