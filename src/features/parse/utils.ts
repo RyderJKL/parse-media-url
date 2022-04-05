@@ -9,10 +9,9 @@ import logger from "../../logger";
 export const extraMedia = async (url: string): Promise<MediaData | undefined> => {
     try {
         const validateUrl = parseUrl(url);
-        logger.info(`请求参数解析: ${validateUrl}`)
 
         if (!validateUrl) {
-            logger.error(`请求参数解析错误: ${validateUrl}`)
+            logger.error(`parsing request parameters error: ${validateUrl}`)
             return;
         }
 
@@ -33,8 +32,8 @@ export const parseUrl = (url: string): { type: MediaType.Medium | MediaType.Yout
     const mediaType = mediaTypeArr.find((item) => new RegExp(`${item}$`).test(host));
 
     if (!mediaType) {
-        logger.error(`目前只支持 twitter/medium/youtube 三个平台`)
-        throw '目前只支持 twitter/medium/youtube 三个平台';
+        logger.error(`only twitter/medium/youtube platforms are supported`)
+        throw 'only twitter/medium/youtube platforms are supported';
     }
 
     return {
@@ -75,15 +74,19 @@ export const getYoutubeContext = async (page: Page, url: string) => {
         await page.goto(url);
         await page.waitFor(3000);
 
-        return await page.evaluate((titleSel, previewSel) => {
+        const { query } = urlParse(url) as unknown as  {query: { v: string }};
+        const img = `https://img.youtube.com/vi/${query?.v || ''}/mqdefault.jpg`
+
+        const result = await page.evaluate((titleSel, previewSel) => {
             const title = (document.querySelector(titleSel) as unknown as HTMLElement)?.innerText || '';
             const preview = (document.querySelector(previewSel) as unknown as HTMLElement)?.innerText || '';
 
             return {
                 title, preview
             }
-
         }, titleSel, previewSel);
+
+        return { ...result, img }
     } catch (e) {
         console.error(e);
         throw `Error At getYoutubeContext :${e}`
@@ -171,7 +174,7 @@ export const getTwitterContext = async (page: Page, url: string): Promise<MediaD
             if (res.url().includes('/i/api/graphql/') && res.url().includes('TweetDetail')) {
                 const result = await res.json();
                 if (!result) {
-                    logger.error('未获取到 twitter 内容');
+                    logger.error('no twitter content retrieved');
                     return;
                 }
 
