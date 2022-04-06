@@ -9,6 +9,7 @@ import logger from "../../logger";
 export const extraMedia = async (url: string): Promise<MediaData | undefined> => {
     try {
         const validateUrl = parseUrl(url);
+        console.log(validateUrl, 'validateUrl');
 
         if (!validateUrl) {
             logger.error(`parsing request parameters error: ${validateUrl}`)
@@ -16,7 +17,7 @@ export const extraMedia = async (url: string): Promise<MediaData | undefined> =>
         }
 
         const page = await getPageFromUrl();
-        return getMediaDataParse[validateUrl.type](page, validateUrl.url)
+        return await getMediaDataParse[validateUrl.type](page, validateUrl.url)
     } catch (e) {
         logger.error(e);
         throw e;
@@ -94,7 +95,7 @@ export const getYoutubeContext = async (page: Page, url: string) => {
 }
 
 const twitterResultPath = [
-    'threaded_conversation_with_injections',
+    'threaded_conversation_with_injections_v2',
     'instructions',
     0,
     'entries',
@@ -103,6 +104,19 @@ const twitterResultPath = [
     'itemContent',
     'tweet_results',
     'result',
+];
+
+const twitterResultLegacyPath = [
+    ...twitterResultPath,
+    'legacy'
+];
+
+const twitterResultLegacyProperties = [
+    'full_text',
+    'favorite_count',
+    'quote_count',
+    'reply_count',
+    'retweet_count'
 ];
 
 const twitterResultUserPath = [
@@ -125,19 +139,6 @@ export interface TwitterResultUserProperties {
     profile_image_url_https: string;
 }
 
-const twitterResultLegacyPath = [
-    ...twitterResultPath,
-    'legacy'
-];
-
-const twitterResultLegacyProperties = [
-    'full_text',
-    'favorite_count',
-    'quote_count',
-    'reply_count',
-    'retweet_count'
-];
-
 export interface TwitterLegacyProperties {
     full_text: string,
     favorite_count: string,
@@ -156,6 +157,8 @@ export interface TwitterMedia extends MediaData {
 }
 
 const convertToMediaData = (obj: Partial<TwitterLegacyProperties & TwitterResultUserProperties>): TwitterMedia => {
+    console.log(obj, 'obj');
+
     return {
         title: obj.full_text,
         img: '',
@@ -169,6 +172,8 @@ const convertToMediaData = (obj: Partial<TwitterLegacyProperties & TwitterResult
     }
 }
 export const getTwitterContext = async (page: Page, url: string): Promise<MediaData> => await new Promise((resolve, reject) => {
+    logger.info('getTwitterContext')
+
     try {
         page.on(('response'), async (res) => {
             if (res.url().includes('/i/api/graphql/') && res.url().includes('TweetDetail')) {
@@ -178,6 +183,8 @@ export const getTwitterContext = async (page: Page, url: string): Promise<MediaD
                     return;
                 }
 
+                logger.info('get twitter contetn data', JSON.stringify(result));
+                console.log(JSON.stringify(result));
                 const getContentPropPath = (prop: string) => R.path([...twitterResultLegacyPath, prop]);
                 const obj: Partial<TwitterLegacyProperties & TwitterResultUserProperties> = {};
                 twitterResultLegacyProperties.forEach(prop => {
@@ -186,10 +193,12 @@ export const getTwitterContext = async (page: Page, url: string): Promise<MediaD
 
                 const getUserPropPath = (prop: string) => R.path([...twitterResultUserPath, prop]);
                 twitterResultUserProperties.forEach(prop => {
-                    obj[prop as keyof TwitterLegacyProperties] = getUserPropPath(prop)(result.data ?? {}) as unknown as string
+                    obj[prop as keyof TwitterResultUserProperties] = getUserPropPath(prop)(result.data ?? {}) as unknown as string
                 });
 
                 const formattedObj = convertToMediaData(obj);
+                console.log(formattedObj, 'formattedObj');
+
                 return resolve(formattedObj);
             }
         });

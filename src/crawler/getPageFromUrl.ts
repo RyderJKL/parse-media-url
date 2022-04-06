@@ -1,4 +1,4 @@
-import puppeteer, {Browser, Page} from "puppeteer";
+import puppeteer, {Browser} from "puppeteer";
 import logger from "../logger";
 
 /**
@@ -50,7 +50,7 @@ async function getBrowser({headless = true} = {}) {
  */
 export async function getPageFromUrl() {
     try {
-        const browser = await getBrowser({headless: true});
+        const browser = await getBrowser({headless: false});
         return await getPage(browser);
     } catch (error) {
         logger.error(error);
